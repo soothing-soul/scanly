@@ -1,3 +1,8 @@
 spring:
   application:
     name: scanly
+
+crypto:
+  private-key-path: {SCANLY_PRIVATE_KEY_PATH}
+  public-key-path: {SCANLY_PUBLIC_KEY_PATH}
+  hash-algorithm: SHA-256
