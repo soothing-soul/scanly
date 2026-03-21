@@ -6,3 +6,10 @@ crypto:
   private-key-path: {SCANLY_PRIVATE_KEY_PATH}
   public-key-path: {SCANLY_PUBLIC_KEY_PATH}
   hash-algorithm: SHA-256
+
+jwt:
+  default-time-to-live: 30s
+  max-time-to-live: 24h
+  issuer: https://scanly.com
+  mandatory-claims: exp, iat, iss, jti
+  supported-algorithms: ES256
