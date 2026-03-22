@@ -8,6 +8,7 @@ import com.scanly.crypto.exception.KeyLoadingException;
 import com.scanly.crypto.model.Algorithm;
 import com.scanly.crypto.model.KeyPairContainer;
 import com.scanly.crypto.model.KeyStatus;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,8 +30,13 @@ import java.util.Base64;
  * the Java Cryptography Architecture (JCA).
  * </p>
  */
+@ConditionalOnProperty(
+        prefix = "crypto",
+        name = "key-source-type",
+        havingValue = "file"
+)
 @Component
-public class FileKeyLoader implements KeyLoader {
+public class FileKeyLoader implements KeyLoader<String> {
     private final HashGenerator hashGenerator;
 
     public FileKeyLoader(HashGenerator hashGenerator) {
@@ -45,15 +51,17 @@ public class FileKeyLoader implements KeyLoader {
      * longevity to the key pair.
      * </p>
      *
-     * @param publicKeyPath  The filesystem path to the public key (.pem).
-     * @param privateKeyPath The filesystem path to the private key (.pem).
+     * @param publicKeySource  The filesystem path to the public key (.pem).
+     * @param privateKeySource The filesystem path to the private key (.pem).
      * @param algorithm      The {@link Algorithm} context for the key factory.
      * @return A fully populated {@link KeyPairContainer}.
      */
     @Override
-    public KeyPairContainer loadKeyPair(String publicKeyPath, String privateKeyPath, Algorithm algorithm) {
-        PublicKey publicKey = loadPublicKey(publicKeyPath, algorithm);
-        PrivateKey privateKey = loadPrivateKey(privateKeyPath, algorithm);
+    public KeyPairContainer loadKeyPair(String publicKeySource, String privateKeySource, Algorithm algorithm) {
+        PublicKey publicKey = loadPublicKey(publicKeySource, algorithm);
+        PrivateKey privateKey = isInvalidPath(privateKeySource)
+                ? null
+                : loadPrivateKey(privateKeySource, algorithm);
 
         // Deterministic ID generation based on public key content
         String kid = generateKeyId(publicKey);
@@ -67,6 +75,10 @@ public class FileKeyLoader implements KeyLoader {
                 Instant.now(),
                 Instant.now().plusSeconds(1_000_000_000L) // Long-term expiration for local dev
         );
+    }
+
+    private boolean isInvalidPath(String privateKeySource) {
+        return privateKeySource == null || privateKeySource.isEmpty();
     }
 
     /**

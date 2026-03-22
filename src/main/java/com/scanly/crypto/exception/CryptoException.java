@@ -3,8 +3,6 @@ package com.scanly.crypto.exception;
 import com.scanly.common.exception.ScanlyBaseException;
 import com.scanly.common.exception.ScanlyError;
 
-import java.util.Map;
-
 /**
  * The base exception for all cryptographic failures within the Scanly platform.
  * <p>

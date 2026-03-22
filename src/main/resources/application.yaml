@@ -3,8 +3,9 @@ spring:
     name: scanly
 
 crypto:
-  private-key-path: {SCANLY_PRIVATE_KEY_PATH}
-  public-key-path: {SCANLY_PUBLIC_KEY_PATH}
+  key-source-type: ${SCANLY_KEY_SOURCE_TYPE}
+  public-key-source: ${SCANLY_PUBLIC_KEY_PATH}
+  private-key-source: ${SCANLY_PRIVATE_KEY_PATH}
   hash-algorithm: SHA-256
 
 jwt:

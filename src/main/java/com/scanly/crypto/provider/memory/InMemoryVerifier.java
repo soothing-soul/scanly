@@ -1,6 +1,6 @@
 package com.scanly.crypto.provider.memory;
 
-import com.scanly.crypto.api.PublicKeyResolver;
+import com.scanly.crypto.api.VerificationKeyResolver;
 import com.scanly.crypto.api.Verifier;
 import com.scanly.crypto.exception.KeyNotFoundException;
 import com.scanly.crypto.exception.VerificationFailedException;
@@ -17,14 +17,14 @@ import java.security.*;
  * </p>
  */
 public class InMemoryVerifier implements Verifier {
-    private final PublicKeyResolver publicKeyResolver;
+    private final VerificationKeyResolver verificationKeyResolver;
 
     /**
      * Constructs a new InMemoryVerifier.
-     * @param publicKeyResolver The resolver used to fetch public keys and algorithm metadata.
+     * @param verificationKeyResolver The resolver used to fetch public keys and algorithm metadata.
      */
-    public InMemoryVerifier(PublicKeyResolver publicKeyResolver) {
-        this.publicKeyResolver = publicKeyResolver;
+    public InMemoryVerifier(VerificationKeyResolver verificationKeyResolver) {
+        this.verificationKeyResolver = verificationKeyResolver;
     }
 
     /**
@@ -46,7 +46,7 @@ public class InMemoryVerifier implements Verifier {
     public boolean verify(String kid, byte[] data, byte[] signature) {
         try {
             // 1. Resolve JWK metadata (Key + Algorithm)
-            Jwk jwk = publicKeyResolver.getJwk(kid);
+            Jwk jwk = verificationKeyResolver.getVerificationKey(kid);
             PublicKey publicKey = jwk.publicKey();
             String signatureAlgorithm = jwk.alg().getSignatureAlgorithm();
 

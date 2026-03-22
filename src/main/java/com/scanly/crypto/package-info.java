@@ -8,7 +8,9 @@
  * from, allowing seamless switching between local filesystem and remote cloud storage.</li>
  * <li><b>Storage ({@link com.scanly.crypto.api.KeyVault}):</b> A "dumb" repository for persisting
  * and retrieving key containers without enforcing business logic.</li>
- * <li><b>Access ({@link com.scanly.crypto.api.PublicKeyResolver}, {@link com.scanly.crypto.api.PrivateKeyResolver}):</b>
+ * <li><b>Access ({@link com.scanly.crypto.api.SigningKeyResolver},
+ * {@link com.scanly.crypto.api.PrivateKeyResolver},
+ * {@link com.scanly.crypto.api.VerificationKeyResolver}):</b>
  * Implements the Interface Segregation Principle to provide "least-privilege" access to keys.</li>
  * <li><b>Execution ({@link com.scanly.crypto.api.Signer}):</b> The high-level action interface
  * that performs digital signatures (e.g., ES256) while hiding JCA complexity.</li>
