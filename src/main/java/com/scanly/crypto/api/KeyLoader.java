@@ -20,8 +20,15 @@ import com.scanly.crypto.model.KeyPairContainer;
  * <li>Utilizing {@link java.security.KeyFactory} to generate the final key objects.</li>
  * </ul>
  * </p>
+ *
+ * <p>
+ * This interface has intentionally been made generic to ensure support for different
+ * type of {@code KeySource} to fetch the actual keys from. It could be a String that
+ * contains the path on the local filesystem, or it could be a complex object containing
+ * the detail about a remote server and the path of the keys there.
+ * </p>
  */
-public interface KeyLoader {
+public interface KeyLoader<T> {
 
     /**
      * Loads an asymmetric key pair from the specified source paths.
@@ -31,11 +38,17 @@ public interface KeyLoader {
      * and assembling a complete {@link KeyPairContainer}.
      * </p>
      *
-     * @param publicKeyPath  The location (file path or URI) of the public key material.
-     * @param privateKeyPath The location (file path or URI) of the private key material.
+     * <p>
+     * <b>Security Note:</b> Implementation should be aware that {@code privateKeySource}
+     * is allowed to be null if the security policy requires private key to not be exposed
+     * directly.
+     * </p>
+     *
+     * @param publicKeySource  The location (file path or URI) of the public key material.
+     * @param privateKeySource The location (file path or URI) of the private key material.
      * @param algorithm      The cryptographic algorithm these keys are intended for.
      * @return A fully populated {@link KeyPairContainer} ready for signing and verification.
      * @throws KeyLoadingException if the files are missing, corrupted, or the format is invalid.
      */
-    KeyPairContainer loadKeyPair(String publicKeyPath, String privateKeyPath, Algorithm algorithm);
+    KeyPairContainer loadKeyPair(T publicKeySource, T privateKeySource, Algorithm algorithm);
 }

@@ -20,7 +20,7 @@ public interface KeyVault {
      * Retrieves a list of all Public-facing key representations currently in the vault.
      * <p>
      * Typically used by management services to audit the current key set or
-     * by PublicKeyResolver to find the key for signature.
+     * by KeyResolver to find the key for signature and verification.
      * </p>
      * @return A list of {@link Jwk} objects.
      */

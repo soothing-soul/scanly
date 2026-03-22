@@ -7,8 +7,6 @@ import com.scanly.crypto.exception.InvalidKeyOperationException;
 import com.scanly.crypto.exception.KeyNotFoundException;
 import com.scanly.crypto.model.KeyPairContainer;
 import com.scanly.crypto.model.KeyStatus;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 /**
  * In-memory implementation of the {@link PrivateKeyResolver}.
@@ -22,7 +20,7 @@ import org.springframework.stereotype.Component;
  * Access is restricted to the package level to ensure that key resolution
  * logic remains encapsulated within the crypto provider.
  */
-public class InMemoryPrivateKeyResolver implements PrivateKeyResolver {
+class InMemoryPrivateKeyResolver implements PrivateKeyResolver {
     private final KeyVault keyVault;
 
     public InMemoryPrivateKeyResolver(KeyVault keyVault) {

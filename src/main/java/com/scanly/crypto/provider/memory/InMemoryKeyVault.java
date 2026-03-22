@@ -4,7 +4,6 @@ import com.scanly.crypto.api.KeyVault;
 import com.scanly.crypto.exception.KeyNotFoundException;
 import com.scanly.crypto.model.Jwk;
 import com.scanly.crypto.model.KeyPairContainer;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 

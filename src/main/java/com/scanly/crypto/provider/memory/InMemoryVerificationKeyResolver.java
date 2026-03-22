@@ -1,58 +1,37 @@
 package com.scanly.crypto.provider.memory;
 
 import com.scanly.crypto.api.KeyVault;
-import com.scanly.crypto.api.PublicKeyResolver;
+import com.scanly.crypto.api.VerificationKeyResolver;
 import com.scanly.crypto.exception.InvalidKeyOperationException;
-import com.scanly.crypto.exception.NoActiveKeyAvailableException;
 import com.scanly.crypto.model.Jwk;
 import com.scanly.crypto.model.KeyStatus;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
 /**
- * In-memory implementation of the {@link PublicKeyResolver}.
+ * In-memory implementation of the {@link VerificationKeyResolver}.
  * <p>
  * This component acts as the primary interface for public cryptographic operations,
  * specifically token verification and active key selection. It enforces
  * {@link KeyStatus} rules to ensure only appropriate keys are used for
  * specific operations.
  * </p>
+ *
+ * <p>
+ * This component acts as the primary interface for providing public details
+ * for the key that can be used to verify the signature. It can be then
+ * used by {@code JwtDecoder} to verify the signature.
+ *
+ * It is also responsible to enforce business rules to ensure only those keys
+ * are made available which are currently eligible for signature verification.
+ * </p>
  */
 @Component
-public class InMemoryPublicKeyResolver implements PublicKeyResolver {
+public class InMemoryVerificationKeyResolver implements VerificationKeyResolver {
 
     private final KeyVault keyVault;
 
-    public InMemoryPublicKeyResolver(KeyVault keyVault) {
+    public InMemoryVerificationKeyResolver(KeyVault keyVault) {
         this.keyVault = keyVault;
-    }
-
-    /**
-     * Selects an eligible key for a new signature operation.
-     * <p>
-     * Filters all available keys in the vault for those with an {@code ACTIVE} status.
-     * If multiple keys are active, it selects one at random to distribute
-     * cryptographic load.
-     * </p>
-     *
-     * @return A random {@link Jwk} eligible for signing.
-     * @throws NoActiveKeyAvailableException if no key in the vault is currently {@code ACTIVE}.
-     */
-    @Override
-    public Jwk getActiveJwk() {
-        List<Jwk> activeJwkList = keyVault.getAllJwks()
-                .stream()
-                .filter(jwk -> jwk.keyStatus().isActive())
-                .toList();
-
-        if (activeJwkList.isEmpty()) {
-            throw new NoActiveKeyAvailableException("No active key available for signature");
-        }
-
-        // Load-balancing logic for multi-key environments
-        return activeJwkList.get(ThreadLocalRandom.current().nextInt(activeJwkList.size()));
     }
 
     /**
@@ -68,7 +47,7 @@ public class InMemoryPublicKeyResolver implements PublicKeyResolver {
      * @throws InvalidKeyOperationException if the key exists but its status prohibits verification.
      */
     @Override
-    public Jwk getJwk(String kid) {
+    public Jwk getVerificationKey(String kid) {
         Jwk jwk = keyVault.findJwkByKid(kid);
 
         // Enforce the lifecycle check

@@ -3,8 +3,7 @@ package com.scanly.security.token.jwt.decoding.provider.nimbus;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.scanly.crypto.api.PublicKeyResolver;
-import com.scanly.crypto.exception.KeyNotFoundException;
+import com.scanly.crypto.api.VerificationKeyResolver;
 import com.scanly.crypto.model.Jwk;
 import org.springframework.stereotype.Component;
 
@@ -25,17 +24,17 @@ import java.util.List;
 class PublicKeySelector implements JWSKeySelector<SecurityContext> {
 
     /** The internal crypto service responsible for locating keys */
-    private final PublicKeyResolver publicKeyResolver;
+    private final VerificationKeyResolver verificationKeyResolver;
 
-    public PublicKeySelector(PublicKeyResolver publicKeyResolver) {
-        this.publicKeyResolver = publicKeyResolver;
+    public PublicKeySelector(VerificationKeyResolver verificationKeyResolver) {
+        this.verificationKeyResolver = verificationKeyResolver;
     }
 
     /**
      * Identifies the correct public key to verify an incoming JWS signature.
      * <p>
      * It extracts the 'kid' parameter from the {@link JWSHeader} and queries
-     * the {@link PublicKeyResolver} to retrieve the corresponding public key.
+     * the {@link VerificationKeyResolver} to retrieve the corresponding public key.
      * </p>
      *
      * @param header  The JWS header containing the algorithm and Key ID.
@@ -48,7 +47,7 @@ class PublicKeySelector implements JWSKeySelector<SecurityContext> {
         String kid = header.getKeyID();
 
         // 2. Resolve the matching Jwk (containing the PublicKey) from the crypto store
-        Jwk jwk = publicKeyResolver.getJwk(kid);
+        Jwk jwk = verificationKeyResolver.getVerificationKey(kid);
 
         // 3. Return the key as a candidate for the Nimbus verification engine
         return List.of(jwk.publicKey());

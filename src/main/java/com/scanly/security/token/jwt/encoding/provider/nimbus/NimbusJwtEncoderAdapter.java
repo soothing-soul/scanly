@@ -1,7 +1,7 @@
 package com.scanly.security.token.jwt.encoding.provider.nimbus;
 
 import com.nimbusds.jose.*;
-import com.scanly.crypto.api.PublicKeyResolver;
+import com.scanly.crypto.api.SigningKeyResolver;
 import com.scanly.crypto.model.Jwk;
 import com.scanly.security.token.jwt.config.JwtProperties;
 import com.scanly.security.token.jwt.constants.JwtConstants;
@@ -40,14 +40,14 @@ class NimbusJwtEncoderAdapter implements JwtEncoder {
     private final JWSSigner jwsSigner;
 
     /** Resolver used to identify the current active key for the 'kid' header. */
-    private final PublicKeyResolver publicKeyResolver;
+    private final SigningKeyResolver signingKeyResolver;
 
     /** Access the config properties related to Jwt */
     private final JwtProperties jwtProperties;
 
-    public NimbusJwtEncoderAdapter(JWSSigner jwsSigner, PublicKeyResolver publicKeyResolver, JwtProperties jwtProperties) {
+    public NimbusJwtEncoderAdapter(JWSSigner jwsSigner, SigningKeyResolver signingKeyResolver, JwtProperties jwtProperties) {
         this.jwsSigner = jwsSigner;
-        this.publicKeyResolver = publicKeyResolver;
+        this.signingKeyResolver = signingKeyResolver;
         this.jwtProperties = jwtProperties;
     }
 
@@ -79,7 +79,7 @@ class NimbusJwtEncoderAdapter implements JwtEncoder {
      * Automatically retrieves the 'kid' from the active key in the crypto store.
      */
     private JWSHeader generateJwsHeader() {
-        Jwk jwk = publicKeyResolver.getActiveJwk();
+        Jwk jwk = signingKeyResolver.getSigningKeyMetadata();
         String kid = jwk.kid();
         JWSAlgorithm signatureAlgorithm = getSignatureAlgorithm();
         return new JWSHeader.Builder(signatureAlgorithm)

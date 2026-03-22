@@ -11,11 +11,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "crypto")
 public class CryptoProperties {
-    /** The filesystem path to the public key (typically .pem or .der format). */
-    private String publicKeyPath;
+    /** Source the public key (typically .pem or .der format). */
+    private String publicKeySource;
 
-    /** The filesystem path to the private key (sensitive). */
-    private String privateKeyPath;
+    /** Source of the private key (sensitive). */
+    private String privateKeySource;
 
     /** Hashing algorithm used for generating fixed size digest of given data */
     private String hashAlgorithm;
@@ -28,25 +28,25 @@ public class CryptoProperties {
         this.hashAlgorithm = hashAlgorithm;
     }
 
-    public String getPublicKeyPath() {
-        return publicKeyPath;
+    public String getPublicKeySource() {
+        return publicKeySource;
     }
 
     /**
-     * @param publicKeyPath The absolute or relative path to the public key file.
+     * @param publicKeySource The absolute or relative path to the public key file.
      */
-    public void setPublicKeyPath(String publicKeyPath) {
-        this.publicKeyPath = publicKeyPath;
+    public void setPublicKeySource(String publicKeySource) {
+        this.publicKeySource = publicKeySource;
     }
 
-    public String getPrivateKeyPath() {
-        return privateKeyPath;
+    public String getPrivateKeySource() {
+        return privateKeySource;
     }
 
     /**
-     * @param privateKeyPath The absolute or relative path to the private key file.
+     * @param privateKeySource The absolute or relative path to the private key file.
      */
-    public void setPrivateKeyPath(String privateKeyPath) {
-        this.privateKeyPath = privateKeyPath;
+    public void setPrivateKeySource(String privateKeySource) {
+        this.privateKeySource = privateKeySource;
     }
 }

@@ -53,8 +53,8 @@ public class KeyLifecycleManager {
     public void initializeKeys() {
         // 1. Ingest the key pair from the specified file paths
         KeyPairContainer keyPairContainer = keyLoader.loadKeyPair(
-                cryptoProperties.getPublicKeyPath(),
-                cryptoProperties.getPrivateKeyPath(),
+                cryptoProperties.getPublicKeySource(),
+                cryptoProperties.getPrivateKeySource(),
                 Algorithm.ES256
         );
 
