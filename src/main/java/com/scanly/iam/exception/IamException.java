@@ -1,6 +1,5 @@
 package com.scanly.iam.exception;
 
-import com.scanly.common.exception.ErrorCategory;
 import com.scanly.common.exception.ScanlyBaseException;
 import com.scanly.common.exception.ScanlyError;
 
@@ -22,7 +21,7 @@ public abstract class IamException extends ScanlyBaseException {
    * @param error   The {@link ScanlyError} containing the internal error code and classification.
    */
   protected IamException(String message, ScanlyError error) {
-    super(message, error, ErrorCategory.IAM);
+    super(message, error);
   }
 
   /**
@@ -32,6 +31,6 @@ public abstract class IamException extends ScanlyBaseException {
    * @param cause   The underlying cause of the exception (used for exception chaining).
    */
   protected IamException(String message, ScanlyError error, Throwable cause) {
-    super(message, error, cause, ErrorCategory.IAM);
+    super(message, error, cause);
   }
 }
