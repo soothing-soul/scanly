@@ -1,6 +1,18 @@
 spring:
   application:
     name: scanly
+  datasource:
+    url: ${SCANLY_DATABASE_URL}
+    username: ${SCANLY_DATABASE_USERNAME}
+    password: ${SCANLY_DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
 
 crypto:
   key-source-type: ${SCANLY_KEY_SOURCE_TYPE}
@@ -14,3 +26,8 @@ jwt:
   issuer: https://scanly.com
   mandatory-claims: exp, iat, iss, jti
   supported-algorithms: ES256
+
+password:
+  minimum-length: 8
+  maximum-length: 20
+  special-characters-required: true
