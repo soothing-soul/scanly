@@ -1,6 +1,10 @@
 spring:
   application:
     name: scanly
+  data:
+    redis:
+      host: localhost
+      port: 6379
   datasource:
     url: ${SCANLY_DATABASE_URL}
     username: ${SCANLY_DATABASE_USERNAME}
@@ -13,6 +17,19 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
+  mail:
+    host: smtp.sendgrid.net
+    port: 587
+    username: apikey
+    password: ${SCANLY_MAILSENDER_API_KEY}
+    properties:
+      mail:
+        SMTP:
+          auth: true
+          STARTTLS:
+            enable: true
+  thymeleaf:
+    prefix: classpath:/email/templates/
 
 crypto:
   key-source-type: ${SCANLY_KEY_SOURCE_TYPE}
@@ -31,3 +48,6 @@ password:
   minimum-length: 8
   maximum-length: 20
   special-characters-required: true
+
+mail:
+  from: ${SCANLY_MAILSENDER_FROM_ADDRESS}
