@@ -1,6 +1,6 @@
 package com.scanly.infra.notification.email.config;
 
-import com.scanly.infra.notification.email.MailService;
+import com.scanly.infra.notification.email.service.MailService;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

@@ -15,15 +15,35 @@ import org.springframework.http.HttpStatus;
  * @see ScanlyError
  */
 public enum MailError implements ScanlyError {
+    /**
+     * Error code indicating that an email request was malformed or failed internal
+     * validation requirements.
+     * <p>
+     * This is treated as an {@code INTERNAL_SERVER_ERROR} because the creation of
+     * email requests is an internal process. A failure here suggests a regression
+     * or logic error in the upstream service (e.g., the Auth Generation Executor)
+     * rather than a client-side mistake.
+     */
+    INVALID_EMAIL_REQUEST("INVALID_EMAIL_REQUEST", HttpStatus.INTERNAL_SERVER_ERROR),
 
     /**
-     * Indicates that no {@code EmailBodyBuilder} has been registered for a requested {@code EmailPurpose}.
+     * Error code indicating that the system failed to resolve a strategy or mapper
+     * for the provided {@code EmailContentInput}.
      * <p>
-     * <b>Resolution:</b> Ensure a {@code @Component} class exists that implements
-     * {@code EmailBodyBuilder} for the missing purpose.
-     * </p>
+     * In our strategy-based notification architecture, each message type (e.g., OTP,
+     * Welcome Email) must have a corresponding mapper registered in the
+     * {@code EmailMessageFactory}. This error is thrown when a message type is
+     * requested but no implementation exists to handle its transformation into
+     * {@code EmailMessage} content.
+     * <p>
+     * <b>Classification:</b> {@code INTERNAL_SERVER_ERROR} (500).
+     * <p>
+     * This is strictly a developer-facing error. It signals a missing configuration
+     * or an incomplete implementation of a new notification type. It should be
+     * monitored via internal logs to catch regressions during the integration of
+     * new domain events.
      */
-    EMAIL_BODY_BUILDER_NOT_FOUND("EMAIL_BODY_BUILDER_NOT_FOUND", HttpStatus.INTERNAL_SERVER_ERROR),
+    EMAIL_CONTENT_MAPPER_NOT_FOUND("EMAIL_CONTENT_MAPPER_NOT_FOUND", HttpStatus.INTERNAL_SERVER_ERROR),
 
     /**
      * Indicates a failure during the technical assembly of the {@code MimeMessage}.
@@ -51,16 +71,7 @@ public enum MailError implements ScanlyError {
      * and provider status pages.
      * </p>
      */
-    MAIL_SENDING_FAILURE("MAIL_SENDING_FAILURE", HttpStatus.INTERNAL_SERVER_ERROR),
-
-    /**
-     * Indicates a configuration conflict where multiple builders are assigned to the same {@code EmailPurpose}.
-     * <p>
-     * <b>Resolution:</b> Check the project for redundant builder implementations and
-     * ensure each {@code EmailPurpose} is handled by exactly one builder.
-     * </p>
-     */
-    DUPLICATE_EMAIL_BODY_BUILDER("DUPLICATE_EMAIL_BODY_BUILDER", HttpStatus.INTERNAL_SERVER_ERROR);
+    MAIL_SENDING_FAILURE("MAIL_SENDING_FAILURE", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String errorCode;
     private final HttpStatus httpStatus;
