@@ -1,18 +1,31 @@
 package com.scanly.otp.model;
 
 /**
- * Represents the successful outcome of an OTP generation request.
+ * Represents the outcome of an OTP (One-Time Password) generation attempt.
  * <p>
- * This record serves as the data transfer object (DTO) returned by the OTP service
- * after a challenge has been successfully initialized and persisted.
+ * This record acts as a Data Transfer Object (DTO) that encapsulates both the
+ * status of the request and the generated code, if applicable.
  * <p>
- * Since the OTP service is agnostic of delivery mechanisms, the consuming domain
- * is responsible for extracting the {@code otp} from this result and dispatching
- * it to the user via the required communication channel (e.g., MailService).
+ * <b>Note:</b> If the {@link #status()} is not {@link OtpGenerationStatus#SUCCESS},
+ * the {@code otp} field will be {@code null}.
  *
- * @param otp The raw, generated one-time password string.
+ * @param status The outcome status of the generation request.
+ * @param otp    The raw, generated one-time password string. Only populated on success.
  */
 public record OtpGenerationResult(
+        OtpGenerationStatus status,
         String otp
 ) {
+    /**
+     * Secondary constructor for generation results that do not produce a code.
+     * <p>
+     * Typically used when the status is {@link OtpGenerationStatus#CONCURRENT_REQUEST}
+     * or other non-success states where the generation process was halted.
+     * </p>
+     *
+     * @param status The outcome status of the request.
+     */
+    public OtpGenerationResult(OtpGenerationStatus status) {
+        this(status, null);
+    }
 }
