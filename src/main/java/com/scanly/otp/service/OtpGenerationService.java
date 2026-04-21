@@ -1,8 +1,10 @@
 package com.scanly.otp.service;
 
 import com.scanly.common.hashing.HashingService;
+import com.scanly.infra.cache.redis.RedisLock;
 import com.scanly.otp.model.OtpGenerationContext;
 import com.scanly.otp.model.OtpGenerationResult;
+import com.scanly.otp.model.OtpGenerationStatus;
 import com.scanly.otp.model.OtpState;
 import com.scanly.otp.persistence.OtpCache;
 import org.springframework.stereotype.Service;
@@ -38,32 +40,47 @@ class OtpGenerationService {
     }
 
     /**
-     * Executes the end-to-end generation flow for a new OTP challenge.
+     * Executes the end-to-end generation flow for a new OTP challenge with concurrency protection.
      * <p>
-     * The method performs the following steps:
+     * This method ensures mutual exclusion using a distributed lock based on the
+     * {@code challengeId}. The workflow is as follows:
      * <ol>
-     * <li>Generates a fresh 6-digit numeric OTP.</li>
+     * <li>Attempts to acquire a {@link RedisLock} for the specific challenge.</li>
+     * <li>If the lock is unavailable, returns a result with {@link OtpGenerationStatus#CONCURRENT_REQUEST}.</li>
+     * <li>Generates a cryptographically secure 6-digit numeric OTP.</li>
      * <li>Creates an immutable {@link OtpState} containing the hashed OTP and metadata.</li>
-     * <li>Saves the state to the cache with a TTL double the challenge's validity
-     * period to allow for late-arriving requests or auditability.</li>
-     * <li>Returns the raw OTP to be dispatched by the calling domain.</li>
+     * <li>Persists the state to the cache with a TTL <b>double</b> the validity period
+     * to support auditability and late-arrival verification.</li>
+     * <li>Releases the lock and returns the raw OTP to the calling domain for delivery.</li>
      * </ol>
      * </p>
      *
-     * @param otpGenerationContext The parameters defining the challenge's
-     * constraints (TTL, max attempts, etc.).
-     * @return An {@link OtpGenerationResult} containing the raw OTP.
+     * @param otpGenerationContext The parameters defining the challenge constraints (TTL, max attempts, etc.).
+     * @return An {@link OtpGenerationResult} indicating either success with the raw OTP,
+     * or a concurrent request failure.
      */
     public OtpGenerationResult generate(OtpGenerationContext otpGenerationContext) {
-        String otp = OtpGenerator.generate();
-        OtpState otpState = generateNewOtpState(otpGenerationContext, otp);
+        RedisLock lock = otpCache.acquireLock(otpGenerationContext.challengeId());
 
-        // Use a buffer for cache persistence to ensure the record doesn't vanish
-        // the exact millisecond the OTP expires.
-        Duration otpRecordTtl = otpGenerationContext.ttl().multipliedBy(2);
+        if (lock == null) {
+            return new OtpGenerationResult(
+                    OtpGenerationStatus.CONCURRENT_REQUEST
+            );
+        }
 
-        otpCache.saveOtpState(otpState, otpState.challengeId(), otpRecordTtl);
-        return new OtpGenerationResult(otp);
+        try {
+            String otp = OtpGenerator.generate();
+            OtpState otpState = generateNewOtpState(otpGenerationContext, otp);
+            Duration otpRecordTtl = otpGenerationContext.ttl().multipliedBy(2);
+            otpCache.saveOtpState(otpState, otpState.challengeId(), otpRecordTtl);
+
+            return new OtpGenerationResult(
+                    OtpGenerationStatus.SUCCESS,
+                    otp
+            );
+        } finally {
+            otpCache.releaseLock(lock);
+        }
     }
 
     /**
