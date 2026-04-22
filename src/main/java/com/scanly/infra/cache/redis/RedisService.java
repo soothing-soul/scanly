@@ -116,9 +116,11 @@
          * @param key   The cache key to update.
          * @param value The new object state to store.
          * @param <T>   The type of the value.
+         * @return {@code True} if the value was updated
          */
-        public <T> void update(String key, T value) {
-            redisTemplate.execute((RedisCallback<Boolean>) connection -> {
+        public <T> boolean update(String key, T value) {
+            // Capture the result of the execute call
+            Boolean result = redisTemplate.execute((RedisCallback<Boolean>) connection -> {
                 byte[] rawKey = serializeKey(key);
                 byte[] rawValue = serializeValue(value);
 
@@ -133,6 +135,9 @@
                         RedisStringCommands.SetOption.ifPresent()
                 );
             });
+
+            // Use Boolean.TRUE.equals to safely handle potential null returns
+            return Boolean.TRUE.equals(result);
         }
 
         /**
