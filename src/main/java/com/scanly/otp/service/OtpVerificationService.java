@@ -2,11 +2,11 @@ package com.scanly.otp.service;
 
 import com.scanly.common.hashing.HashingService;
 import com.scanly.infra.cache.redis.RedisLock;
-import com.scanly.otp.model.*;
+import com.scanly.otp.model.OtpState;
+import com.scanly.otp.model.OtpVerificationContext;
+import com.scanly.otp.model.OtpVerificationStatus;
 import com.scanly.otp.persistence.OtpCache;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 /**
  * Internal service responsible for the atomic verification of OTP challenges.
