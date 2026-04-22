@@ -21,12 +21,4 @@ public record User(
         String email,
         boolean emailVerified,
         UserStatus status
-) {
-    /**
-     * Validates that the user is in an operational state.
-     * @return true if the user status allows for platform interaction.
-     */
-    public boolean isActive() {
-        return status == UserStatus.ACTIVE;
-    }
-}
+) {}
