@@ -42,7 +42,7 @@ public class NotificationService {
      * @param request The {@link NotificationRequest} containing the message payload and routing details.
      * @throws IllegalStateException if no sender is found for the requested channel (optional logic to add).
      */
-    void send(NotificationRequest request) {
+    public void send(NotificationRequest request) {
         NotificationChannel channel = request.getTarget().getChannel();
 
         for (NotificationSender sender : senders) {

@@ -49,6 +49,18 @@ public enum AuthError implements ScanlyError {
     /** The provided MFA token is malformed, has been tampered with, or does not belong to the current flow. */
     INVALID_MFA_TOKEN("INVALID_MFA_TOKEN", HttpStatus.UNAUTHORIZED),
 
+    /** OTP for the given challengeId does not exist, or it has been deleted due to TTL*/
+    OTP_NOT_FOUND("OTP_NOT_FOUND", HttpStatus.UNAUTHORIZED),
+
+    /** OTP has expired and cannot be used for verification anymore */
+    OTP_EXPIRED("OTP_EXPIRED", HttpStatus.UNAUTHORIZED),
+
+    /** Given OTP does not match the OTP corresponding to the given challengeId */
+    INVALID_OTP("INVALID_OTP", HttpStatus.UNAUTHORIZED),
+
+    /** OTP is invalid and the failed attempt has reached the maximum allowed limit */
+    INVALID_OTP_ATTEMPT_LIMIT_REACHED("INVALID_OTP_ATTEMPT_LIMIT_REACHED", HttpStatus.UNAUTHORIZED),
+
     /** The user account exists but is currently deactivated, locked, or pending administrative approval. */
     USER_NOT_ACTIVE("USER_NOT_ACTIVE", HttpStatus.FORBIDDEN),
 

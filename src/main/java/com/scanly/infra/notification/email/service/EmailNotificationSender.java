@@ -5,6 +5,7 @@ import com.scanly.infra.notification.common.NotificationRequest;
 import com.scanly.infra.notification.common.NotificationSender;
 import com.scanly.infra.notification.email.exception.InvalidEmailRequestException;
 import com.scanly.infra.notification.email.model.EmailRequest;
+import org.springframework.stereotype.Component;
 
 /**
  * An implementation of {@link NotificationSender} dedicated to handling email communications.
@@ -14,6 +15,7 @@ import com.scanly.infra.notification.email.model.EmailRequest;
  * and delegates the actual transmission logic to the underlying {@link MailService}.
  * </p>
  */
+@Component
 public class EmailNotificationSender implements NotificationSender {
 
     /**

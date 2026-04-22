@@ -16,8 +16,8 @@ import java.util.UUID;
 public class MfaService {
     public MfaConfig getMfaConfig(UUID userId) {
         return new MfaConfig(
-                false,
-                new ArrayList<>(List.of(AuthMethodType.PASSWORD))
+                true,
+                new ArrayList<>(List.of(AuthMethodType.PASSWORD, AuthMethodType.EMAIL_OTP))
         );
     }
 }
