@@ -14,6 +14,8 @@ import com.scanly.iam.auth.common.service.AuthHandler;
 import com.scanly.iam.auth.flow.model.AuthFlowState;
 import com.scanly.iam.auth.flow.model.AuthStep;
 import com.scanly.iam.auth.flow.model.AuthStepStatus;
+import com.scanly.iam.token.AuthToken;
+import com.scanly.iam.token.AuthTokenIssuer;
 import com.scanly.iam.user.domain.User;
 import com.scanly.iam.user.domain.UserStatus;
 import com.scanly.iam.user.service.UserLookupService;
@@ -60,15 +62,21 @@ public class AuthFlowService {
     /** Service required to hash the mfa tokens to store safely in redis */
     private final HashingService hashingService;
 
+    /** Service required for TokenGeneration for successful login */
+    private final AuthTokenIssuer authTokenIssuer;
+
     public AuthFlowService(
             AuthFlowCache authFlowCache,
             AuthStepsResolver authStepsResolver,
-            UserLookupService userLookupService, HashingService hashingService
+            UserLookupService userLookupService,
+            HashingService hashingService,
+            AuthTokenIssuer authTokenIssuer
     ) {
         this.authFlowCache = authFlowCache;
         this.authStepsResolver = authStepsResolver;
         this.userLookupService = userLookupService;
         this.hashingService = hashingService;
+        this.authTokenIssuer = authTokenIssuer;
     }
 
     /**
@@ -447,7 +455,7 @@ public class AuthFlowService {
         if (currentStep.status() == AuthStepStatus.CHALLENGED) {
             return getChallengeAuthResponse();
         } else if (currentStepIndex == (flowState.requiredSteps().size() - 1)) {
-            return getFinalAuthResponse();
+            return getFinalAuthResponse(flowState.userId());
         }  else {
             return getStepAuthResponse(authRequest, flowState, mfaToken);
         }
@@ -481,13 +489,15 @@ public class AuthFlowService {
     /**
      * Builds the final response once all steps are successfully verified.
      * <p>
-     * This acts as a placeholder for the actual token response that will be implemented later.
+     *     Coordinates with the {@link AuthTokenIssuer} to get the token
+     *     for authenticated user.
      * </p>
      */
-    private AuthResponse getFinalAuthResponse() {
+    private AuthResponse getFinalAuthResponse(UUID userId) {
+        AuthToken authToken = authTokenIssuer.issue(userId);
         return new FinalAuthResponse(
-                "AccessToken", // TODO: Inject JWT Service here
-                Instant.now().plusSeconds(600)
+                authToken.accessToken().token(),
+                authToken.accessToken().expiresAt()
         );
     }
 }

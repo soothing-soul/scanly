@@ -10,9 +10,13 @@ import com.scanly.iam.policy.password.model.PasswordContext;
 import com.scanly.iam.policy.password.model.PasswordOperation;
 import com.scanly.iam.registration.web.RegistrationRequest;
 import com.scanly.iam.registration.web.RegistrationResponse;
+import com.scanly.iam.token.AuthToken;
+import com.scanly.iam.token.AuthTokenIssuer;
 import com.scanly.iam.user.domain.User;
 import com.scanly.iam.user.exception.EmailAlreadyExistsException;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 /**
  * This class acts as the high-level coordinator for the user registration
@@ -26,22 +30,25 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RegistrationHandler {
-
+    private final AuthTokenIssuer authTokenIssuer;
     private final EmailPolicyValidator emailPolicyValidator;
     private final PasswordPolicyValidator passwordPolicyValidator;
     private final RegistrationPersistenceService registrationPersistenceService;
 
     /**
      * Constructs the handler with necessary validators and the persistence coordinator.
+     * @param authTokenIssuer Service for auth token generation
      * @param emailPolicyValidator Validator for organizational or technical email rules.
      * @param passwordPolicyValidator Validator for security requirements (complexity, length, etc.).
      * @param registrationPersistenceService Service for atomic database operations.
      */
     public RegistrationHandler(
+            AuthTokenIssuer authTokenIssuer,
             EmailPolicyValidator emailPolicyValidator,
             PasswordPolicyValidator passwordPolicyValidator,
             RegistrationPersistenceService registrationPersistenceService
     ) {
+        this.authTokenIssuer = authTokenIssuer;
         this.emailPolicyValidator = emailPolicyValidator;
         this.passwordPolicyValidator = passwordPolicyValidator;
         this.registrationPersistenceService = registrationPersistenceService;
@@ -89,9 +96,18 @@ public class RegistrationHandler {
         ));
 
         // Step 5: Final response
+        return generateResponse(user.userId());
+    }
+
+    /**
+     * Populate the registration with the access token and its expiry value
+     * @param userId UUID of the user that completed the registration
+     */
+    private RegistrationResponse generateResponse(UUID userId) {
+        AuthToken authToken = authTokenIssuer.issue(userId);
         return new RegistrationResponse(
-                user.userId(),
-                user.email()
+                authToken.accessToken().token(),
+                authToken.accessToken().expiresAt()
         );
     }
 }
